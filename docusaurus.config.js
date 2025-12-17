@@ -41,7 +41,7 @@ const config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/your-username/physical-ai-humanoid-robotics-book/tree/main/',
+            'https://github.com/farhakhans/physical-ai-humanoid-robotics-book/tree/main/',
         },
         blog: false, // Disable blog for this educational book
         theme: {
