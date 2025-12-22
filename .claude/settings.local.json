@@ -267,7 +267,11 @@
       "Bash(taskkill /f /pid 11476)",
       "Bash(powershell -Command \"Stop-Process -Id 11476 -Force\")",
       "Bash(powershell -Command \"Stop-Process -Id 15968 -Force\")",
-      "Bash(git add .claude/settings.local.json package-lock.json package.json rag-chatbot/floating-chatbot.html rag-chatbot/mcp-adapter.js rag-chatbot/package-lock.json rag-chatbot/package.json rag-chatbot/server-upgradeable.mjs rag-chatbot/server.js src/components/FloatingChatbot.js rag-chatbot/run-chatbot.bat rag-chatbot/run-project.bat rag-chatbot/start-all.bat rag-chatbot/start-mcp.bat rag-chatbot/start-services.bat rag-chatbot/test-connection.js server.mjs)"
+      "Bash(git add .claude/settings.local.json package-lock.json package.json rag-chatbot/floating-chatbot.html rag-chatbot/mcp-adapter.js rag-chatbot/package-lock.json rag-chatbot/package.json rag-chatbot/server-upgradeable.mjs rag-chatbot/server.js src/components/FloatingChatbot.js rag-chatbot/run-chatbot.bat rag-chatbot/run-project.bat rag-chatbot/start-all.bat rag-chatbot/start-mcp.bat rag-chatbot/start-services.bat rag-chatbot/test-connection.js server.mjs)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Enhance RAG chatbot with improved responses and better connectivity\n\n- Fix chatbot connection by updating endpoint from localhost:5010 to localhost:5002\n- Update MCP adapter to use correct ports \\(5002\\) and connect to RAG server at localhost:5007\n- Improve response generation to provide direct answers instead of just references\n- Fix content extraction to use full document content instead of truncated previews\n- Add run scripts for easier service startup \\(run-chatbot.bat, start-all.bat, etc.\\)\n- Update response formatting to focus on answers rather than \"based on documentation\" language\n- Ensure proper document indexing and search functionality\n\nThese changes resolve issues with the chatbot not responding, providing truncated answers,\nand displaying references instead of direct answers.\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Haiku 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(rm -f nul)",
+      "Bash(git add:*)"
     ]
   }
 }
