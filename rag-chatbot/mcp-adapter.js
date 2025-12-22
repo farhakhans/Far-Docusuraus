@@ -3,14 +3,14 @@ import cors from 'cors';
 import axios from 'axios';
 
 const app = express();
-const PORT = process.env.RAG_MCP_PORT || 5001;
+const PORT = process.env.RAG_MCP_PORT || 5002;
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Configuration
-const RAG_SERVER_URL = process.env.RAG_SERVER_URL || 'http://localhost:5004';
+const RAG_SERVER_URL = process.env.RAG_SERVER_URL || 'http://localhost:5007';
 
 // MCP Tools Configuration
 const mcpTools = {

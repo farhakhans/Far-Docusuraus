@@ -3,20 +3,18 @@ import cors from 'cors';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { QdrantClient } from '@qdrant/js-client-rest';
+import { CohereClient } from 'cohere-ai';
 import dotenv from 'dotenv';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 5003;
-
-app.use(cors());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+const PORT = process.env.PORT || 3000;
 
 // Configuration for external services
 const config = {
@@ -35,8 +33,6 @@ let cohereClient = null;
 async function initializeExternalServices() {
   if (config.useExternalServices && config.cohereApiKey) {
     try {
-      // Initialize Cohere client
-      const { CohereClient } = await import('cohere-ai');
       cohereClient = new CohereClient({
         token: config.cohereApiKey,
       });
@@ -49,8 +45,6 @@ async function initializeExternalServices() {
 
   if (config.useExternalServices && config.qdrantUrl) {
     try {
-      // Initialize Qdrant client
-      const { QdrantClient } = await import('@qdrant/js-client-rest');
       qdrantClient = new QdrantClient({
         url: config.qdrantUrl,
         apiKey: config.qdrantApiKey,
@@ -63,16 +57,13 @@ async function initializeExternalServices() {
   }
 }
 
-// Call initialization function
-initializeExternalServices().catch(console.error);
-
 // In-memory fallback storage for document embeddings
 let documentEmbeddings = [];
 
 // Function to read and parse markdown files from the docs directory
 async function loadDocuments() {
   console.log('Loading documents...');
-  const docsPath = join(__dirname, '../docs');
+  const docsPath = path.join(__dirname, 'docs');
   const files = await findMarkdownFiles(docsPath);
   const documents = [];
 
@@ -103,7 +94,7 @@ async function findMarkdownFiles(dir) {
   let files = [];
 
   for (const dirent of dirents) {
-    const res = join(dir, dirent.name);
+    const res = path.join(dir, dirent.name);
     if (dirent.isDirectory()) {
       files = files.concat(await findMarkdownFiles(res));
     } else if (dirent.isFile() && (dirent.name.endsWith('.md') || dirent.name.endsWith('.mdx'))) {
@@ -243,16 +234,39 @@ async function embedQuery(query) {
   return createSimpleEmbedding(query);
 }
 
-// Simple embedding function (fallback)
+// Simple embedding function (fallback) - improved to include phrases
 function createSimpleEmbedding(text) {
+  const textLower = text.toLowerCase();
   // Create a simple "embedding" by converting text to lowercase and splitting into words
-  const words = text.toLowerCase()
+  const words = textLower
     .replace(/[^\w\s]/g, ' ')
     .split(/\s+/)
-    .filter(word => word.length > 2)
-    .filter((word, index, arr) => arr.indexOf(word) === index); // Remove duplicates
+    .filter(word => word.length > 2);
 
-  return words;
+  // Remove duplicates while preserving order
+  const uniqueWords = [...new Set(words)];
+
+  // Also include common phrases (2-3 word combinations) for better matching
+  const phrases = [];
+  const wordTokens = textLower.match(/\b\w+\b/g) || [];
+
+  // Add 2-word phrases
+  for (let i = 0; i < wordTokens.length - 1; i++) {
+    if (wordTokens[i].length > 1 && wordTokens[i + 1].length > 1) {
+      phrases.push(`${wordTokens[i]} ${wordTokens[i + 1]}`);
+    }
+  }
+
+  // Add 3-word phrases
+  for (let i = 0; i < wordTokens.length - 2; i++) {
+    if (wordTokens[i].length > 1 && wordTokens[i + 1].length > 1 && wordTokens[i + 2].length > 1) {
+      phrases.push(`${wordTokens[i]} ${wordTokens[i + 1]} ${wordTokens[i + 2]}`);
+    }
+  }
+
+  // Combine unique words and phrases
+  const allTokens = [...uniqueWords, ...phrases];
+  return allTokens;
 }
 
 // Build document embeddings and store in Qdrant
@@ -326,7 +340,7 @@ async function searchDocuments(query, topK = 5) {
       const results = searchResponse.map(point => ({
         filepath: point.payload.filepath,
         title: point.payload.title,
-        content: point.payload.content,
+        content: point.payload.contentPreview,
         similarity: point.score
       }));
 
@@ -380,7 +394,7 @@ async function searchDocuments(query, topK = 5) {
     .map(item => ({
       filepath: item.doc.filepath,
       title: item.doc.title,
-      content: item.doc.content,
+      content: item.doc.contentPreview,
       similarity: item.similarity
     }));
 }
@@ -389,16 +403,29 @@ async function searchDocuments(query, topK = 5) {
 function calculateSimilarity(queryEmbedding, docEmbedding) {
   // Handle both array (simple) and vector (Cohere) embeddings
   if (Array.isArray(queryEmbedding) && Array.isArray(docEmbedding)) {
-    // Simple word overlap
+    // Improved word overlap with multiple similarity measures
     const querySet = new Set(queryEmbedding);
     const docSet = new Set(docEmbedding);
 
     // Find intersection
     const intersection = [...querySet].filter(word => docSet.has(word));
 
-    // Calculate similarity (Jaccard similarity)
-    const union = new Set([...querySet, ...docSet]);
-    return intersection.length / union.size;
+    if (intersection.length === 0) {
+      return 0; // No similarity if no words match
+    }
+
+    // Calculate multiple similarity measures and return the highest
+    // Jaccard similarity
+    const jaccard = intersection.length / (querySet.size + docSet.size - intersection.length);
+
+    // Dice similarity (F1-based)
+    const dice = (2 * intersection.length) / (querySet.size + docSet.size);
+
+    // Overlap coefficient
+    const overlap = intersection.length / Math.min(querySet.size, docSet.size);
+
+    // Return the maximum of all similarity measures
+    return Math.max(jaccard, dice, overlap);
   } else {
     // For vector embeddings, use cosine similarity
     return calculateCosineSimilarity(queryEmbedding, docEmbedding);
@@ -457,31 +484,53 @@ function generateResponse(query, context, contextSources = []) {
 
   // If we found a particularly relevant section, focus on that
   if (mostRelevantSection && highestScore > 0) {
-    // Extract the content part from the section - capture everything until the next field or end
-    const contentMatch = mostRelevantSection.match(/Content: ([\s\S]*?)(?:\nFile:|\nTitle:|$)/);
+    // Extract the content part from the section
+    const contentMatch = mostRelevantSection.match(/Content: ([\s\S]*?)(?:\n|$)/);
     const extractedContent = contentMatch ? contentMatch[1].trim() : mostRelevantSection.trim();
 
-    // Create a direct answer focusing on the content without excessive "based on documentation" language
-    let response = `${extractedContent}\n\n`;
+    // Clean up the content - remove the preview dots and extract more meaningful content
+    let cleanContent = extractedContent.replace(/\.{3}$/, '').trim();
+    if (cleanContent.length > 200) {
+      // If it's a longer preview, try to extract the most relevant part
+      const queryWords = query.toLowerCase().split(/\s+/).filter(word => word.length > 2);
+      let bestMatch = cleanContent.substring(0, 200) + '...';
 
-    // Only add source information if specifically requested or for important references
-    if (contextSources.length > 0) {
-      const topSource = contextSources[0]; // Most relevant source
-      // Make source information more subtle and optional
-      response += `Information source: ${topSource.title}\n`;
+      for (const word of queryWords) {
+        const regex = new RegExp(`.{0,100}\\b${word}\\b.{0,100}`, 'gi');
+        const matches = cleanContent.match(regex);
+        if (matches && matches.length > 0) {
+          bestMatch = matches[0];
+          if (matches[0].length < cleanContent.length * 0.8) { // Only use if it's a more focused match
+            bestMatch += '...';
+            break;
+          }
+        }
+      }
+      cleanContent = bestMatch;
     }
 
+    let response = `Based on the documentation:\n\n${cleanContent}\n\n`;
+
+    // Add specific source information
+    if (contextSources.length > 0) {
+      const topSource = contextSources[0]; // Most relevant source
+      response += `Source: ${topSource.title} (${topSource.filepath})\n`;
+    }
+
+    response += `\nFor more detailed information about "${query}", you can check the documentation.`;
     return response;
   }
 
-  // Fallback to a more direct answer if no particularly relevant section found
-  return `Here's what I found about "${query}":\n\n${context}`;
+  // Fallback to the original approach if no particularly relevant section found
+  return `Based on the documentation, here's what I found regarding "${query}":\n\n${context}\n\nFor more specific information, please check the referenced documents above.`;
 }
 
-// Initialize embeddings on startup
-buildEmbeddings().catch(console.error);
+// Enable CORS
+app.use(cors());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// API endpoint to search documentation
+// RAG API endpoints (these will be available on the same port)
 app.get('/api/search', async (req, res) => {
   try {
     const { q, limit = 5 } = req.query;
@@ -527,10 +576,20 @@ app.post('/api/chat', async (req, res) => {
       similarity: r.similarity
     }));
 
+    // Use the most relevant document's content for the primary response if available
+    let primaryResponse = generateResponse(message, context, contextSources);
+
+    // If we have search results, try to make the response more targeted
+    if (searchResults.length > 0) {
+      const mostRelevant = searchResults[0]; // Highest similarity
+      // Create a more targeted response using the most relevant document
+      primaryResponse = `Based on the documentation:\n\n${mostRelevant.content.replace(/\.{3}$/, '...')}\n\nSource: ${mostRelevant.title} (${mostRelevant.filepath})\n\nFor more detailed information about "${message}", you can check the documentation.`;
+    }
+
     const response = {
       query: message,
       contextSources: contextSources,
-      response: generateResponse(message, context, contextSources),
+      response: primaryResponse,
       timestamp: new Date().toISOString()
     };
 
@@ -588,12 +647,54 @@ app.post('/api/rebuild-index', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`RAG Chatbot Server running on port ${PORT}`);
-  console.log(`Health: http://localhost:${PORT}/health`);
-  console.log(`Search API: http://localhost:${PORT}/api/search`);
-  console.log(`Chat API: http://localhost:${PORT}/api/chat`);
-  console.log(`External services: ${config.useExternalServices ? 'ENABLED' : 'DISABLED (using fallback)'}`);
+// Proxy middleware for non-API routes to Docusaurus dev server
+const proxyOptions = {
+  target: 'http://localhost:3001', // Docusaurus dev server on port 3001
+  changeOrigin: true,
+  logLevel: 'silent', // Suppress proxy logs
+  onError: (err, req, res) => {
+    console.error('Proxy error:', err);
+    // If Docusaurus server is not available, serve a simple fallback
+    if (req.path.startsWith('/api/') || req.path === '/health') {
+      // This is an API request, don't proxy it
+      return;
+    }
+    res.status(500).send('Docusaurus server not available');
+  }
+};
+
+// Apply proxy middleware to all routes except API endpoints
+app.use((req, res, next) => {
+  // Don't proxy API requests or health check
+  if (req.path.startsWith('/api/') || req.path === '/health') {
+    next(); // Skip proxy for API routes
+  } else {
+    // Use the proxy for all other requests
+    createProxyMiddleware(proxyOptions)(req, res, next);
+  }
 });
+
+// Initialize external services and build embeddings on startup
+async function initializeServer() {
+  try {
+    await initializeExternalServices();
+    await buildEmbeddings();
+    console.log('Server initialization complete');
+  } catch (error) {
+    console.error('Error during server initialization:', error);
+  }
+}
+
+// Initialize server
+initializeServer().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Physical AI Humanoid Robotics Platform running on port ${PORT}`);
+    console.log(`Health: http://localhost:${PORT}/health`);
+    console.log(`Search API: http://localhost:${PORT}/api/search`);
+    console.log(`Chat API: http://localhost:${PORT}/api/chat`);
+    console.log(`Website: http://localhost:${PORT}`);
+    console.log(`Note: Docusaurus dev server should be running on http://localhost:3001`);
+  });
+}).catch(console.error);
 
 export default app;

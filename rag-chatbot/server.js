@@ -1,10 +1,12 @@
-const express = require('express');
-const cors = require('cors');
-const fs = require('fs').promises;
-const path = require('path');
-const { QdrantClient } = require('qdrant-client');
-const { CohereClient } = require('cohere-ai');
-require('dotenv').config();
+import express from 'express';
+import cors from 'cors';
+import { promises as fs } from 'fs';
+import path from 'path';
+import pkg from 'qdrant-client';
+const { QdrantClient } = pkg;
+import { CohereClient } from 'cohere-ai';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -252,10 +254,31 @@ async function searchDocuments(query, topK = 5) {
   }
 }
 
-// Initialize Qdrant collection on startup, but don't rebuild all embeddings unless needed
-initializeCollection().then(() => {
-  console.log('Qdrant collection initialized');
-}).catch(console.error);
+// Function to initialize the server and optionally rebuild embeddings
+async function initializeServer(rebuildEmbeddings = false) {
+  console.log('Initializing RAG Chatbot Server...');
+
+  try {
+    // Initialize Qdrant collection
+    await initializeCollection();
+    console.log('Qdrant collection initialized');
+
+    // Check if we should rebuild embeddings based on environment variable or parameter
+    if (rebuildEmbeddings || process.env.REBUILD_EMBEDDINGS === 'true') {
+      console.log('Rebuilding embeddings on startup...');
+      const count = await buildEmbeddings();
+      console.log(`Embeddings initialization complete. Indexed ${count} documents.`);
+    } else {
+      console.log('Server initialized without rebuilding embeddings. Use REBUILD_EMBEDDINGS=true to rebuild.');
+    }
+  } catch (error) {
+    console.error('Error during server initialization:', error);
+    throw error;
+  }
+}
+
+// Initialize server on startup
+initializeServer().catch(console.error);
 
 // API endpoint to search documentation
 app.get('/api/search', async (req, res) => {
@@ -325,12 +348,29 @@ function generateResponse(query, context) {
 }
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    documentCount: documentEmbeddings.length
-  });
+app.get('/health', async (req, res) => {
+  try {
+    // Initialize collection
+    await initializeCollection();
+
+    // Get count of documents in Qdrant
+    const collectionInfo = await qdrantClient.getCollection(COLLECTION_NAME);
+    const documentCount = collectionInfo.points_count || 0;
+
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      documentCount: documentCount
+    });
+  } catch (error) {
+    console.error('Health check error:', error);
+    res.status(500).json({
+      status: 'unhealthy',
+      error: error.message,
+      timestamp: new Date().toISOString(),
+      documentCount: 0
+    });
+  }
 });
 
 // Endpoint to get all available documents

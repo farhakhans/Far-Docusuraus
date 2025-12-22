@@ -112,7 +112,7 @@ const FloatingChatbot = () => {
 
     try {
       // Use MCP adapter to execute the ask_documentation tool
-      const response = await fetch('http://localhost:5010/execute', {
+      const response = await fetch('http://localhost:5002/execute', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

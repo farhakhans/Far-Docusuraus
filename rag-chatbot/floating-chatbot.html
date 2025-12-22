@@ -6,7 +6,7 @@
     height: 60px;
     border-radius: 50%;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    color: rgb(109, 89, 89);
     border: none;
     cursor: pointer;
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
@@ -139,7 +139,7 @@
   // RAG Chatbot Widget Implementation
   class RAGChatbotWidget {
     constructor() {
-      this.mcpApiUrl = 'http://localhost:5010'; // MCP adapter URL
+      this.mcpApiUrl = 'http://localhost:5002'; // MCP adapter URL
       this.isOpen = false;
       this.initializeElements();
       this.initializeEventListeners();
