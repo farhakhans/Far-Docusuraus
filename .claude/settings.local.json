@@ -150,7 +150,9 @@
       "Bash(git add .)",
       "Bash(git pull origin master)",
       "Bash(git merge gh-pages)",
-      "Bash(git add .claude/settings.local.json docusaurus.config.js)"
+      "Bash(git add .claude/settings.local.json docusaurus.config.js)",
+      "Bash(git commit -m \"Complete merge and resolve conflicts - Add server-side computation functionality\")",
+      "Bash(git push origin master)"
     ]
   }
 }
