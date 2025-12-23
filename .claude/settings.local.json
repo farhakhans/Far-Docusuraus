@@ -147,7 +147,10 @@
       "Bash(curl -I http://localhost:3002/physical-ai-humanoid-robotics-book/rag-chatbot/sidebar-chatbot.js)",
       "Bash(curl -I http://localhost:3002/physical-ai-humanoid-robotics-book/rag-chatbot/sidebar-chatbot.css)",
       "Bash(curl -I http://localhost:3006/physical-ai-humanoid-robotics-book/rag-chatbot/floating-chatbot.js)",
-      "Bash(git add .)"
+      "Bash(git add .)",
+      "Bash(git pull origin master)",
+      "Bash(git checkout -b feature/server-side-computation)",
+      "Bash(git stash pop)"
     ]
   }
 }
