@@ -155,7 +155,8 @@
       "Bash(git push origin master)",
       "Bash(git commit -m \"Update settings and resolve merge conflicts\")",
       "Bash(git commit -m \"Update Claude settings permissions\")",
-      "Bash(git commit -m \"Update Claude settings\")"
+      "Bash(git commit -m \"Update Claude settings\")",
+      "Bash(git commit -m \"Complete merge and update settings file\")"
     ]
   }
 }
