@@ -290,7 +290,9 @@
       "Bash(curl -X POST http://localhost:3001/api/robotics/simulate -H \"Content-Type: application/json\" -d '{\"\"parameters\"\": {\"\"mass\"\": 2, \"\"acceleration\"\": 9.8}, \"\"simulationType\"\": \"\"physics\"\"}')",
       "Bash(curl -X GET http://localhost:3001/api/robotics/simulations)",
       "Bash(rd /s /q build)",
-      "Bash(powershell Remove-Item -Recurse -Force build)"
+      "Bash(powershell Remove-Item -Recurse -Force build)",
+      "Bash(git commit -m \"feat: Add server-side computation API and documentation\n\n- Implement server-side robotics computation API endpoints\n- Add kinematics, physics, path planning, and control system calculations\n- Create client-side component for API integration\n- Add comprehensive documentation for server-side computation\n- Update Vercel configuration for API routing\n- Add server-side computation section to documentation sidebar\n\nThis enables powerful robotics calculations to be performed securely on the server.\")",
+      "Bash(git merge feature/server-side-computation)"
     ]
   }
 }
