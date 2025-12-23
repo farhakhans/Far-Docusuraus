@@ -1,268 +1,263 @@
 ---
-sidebar_position: 2
+sidebar_position: 4
 ---
 
-# Module 1 Assessment: ROS 2 Fundamentals Project
+# ROS2 Project Assessment
 
-## Project Overview
+The ROS2 Project assesses students' ability to develop complex robotic systems using the Robot Operating System 2 (ROS2), focusing on architecture, communication patterns, and system integration.
 
-The ROS 2 Fundamentals Project assesses your understanding of core ROS 2 concepts including nodes, topics, services, rclpy, and URDF. You will implement a complete robotic system that demonstrates these concepts in an integrated manner.
+## Project Overview {#project-overview}
 
-## Learning Outcomes Assessed
+### Objective {#objective}
+Develop a sophisticated ROS2-based robotic system that demonstrates advanced understanding of ROS2 concepts, proper architecture, and effective system integration.
 
-This project directly evaluates:
-- **LO-002**: Implement ROS 2 communication patterns
-- **LO-003**: Design simulation-based testing environments
-- **LO-006**: Integrate and deploy complete Physical AI systems
+### Learning Outcomes {#learning-outcomes}
+By completing this project, students will demonstrate:
+- Advanced ROS2 architecture and node design
+- Efficient inter-node communication patterns
+- Proper use of ROS2 tools and development practices
+- System integration and testing methodologies
 
-## Project Requirements
+## Project Requirements {#project-requirements}
 
-### Core Components
-1. **Custom Message Types**: Create and use custom ROS 2 message types
-2. **Node Implementation**: Implement at least 4 different types of nodes
-3. **Communication Patterns**: Demonstrate publisher-subscriber and service-client patterns
-4. **URDF Model**: Create a functional robot model with proper kinematics
-5. **Parameter Management**: Use ROS 2 parameters for configuration
+### Core Components {#core-components}
+1. **Node Architecture**: Multiple interconnected nodes with clear responsibilities
+2. **Communication Patterns**: Proper use of topics, services, and actions
+3. **Parameter Management**: Dynamic configuration and runtime adjustment
+4. **System Integration**: Coordinated operation of all components
 
-### Technical Specifications
+### Technical Specifications {#technical-specifications}
+- **Minimum 5 Nodes**: Each with distinct functionality and clear interfaces
+- **Multiple Communication Types**: Topics, services, and actions appropriately used
+- **Parameter Configuration**: Runtime configurable parameters with validation
+- **Launch System**: Comprehensive launch files for system startup
+- **Testing Framework**: Unit and integration tests for all components
 
-#### Node Requirements
-- **Sensor Node**: Publishes simulated sensor data (minimum 2 different sensor types)
-- **Controller Node**: Subscribes to sensor data and publishes commands
-- **Service Node**: Provides robot configuration or control services
-- **Parameter Node**: Manages robot configuration parameters
+## Implementation Phases {#implementation-phases}
 
-#### Communication Requirements
-- Implement at least 3 different topic-based communication patterns
-- Create and use custom message types for robot-specific data
-- Implement at least 2 different service types for robot control
-- Demonstrate proper Quality of Service (QoS) configuration
+### Phase 1: System Design (Week 1-2) {#phase-1-system-design-week-1-2}
+- Define system architecture and node responsibilities
+- Design message and service interfaces
+- Plan communication patterns and data flow
+- Create system architecture diagrams
 
-#### URDF Requirements
-- Create a robot model with at least 4 links and 3 joints
-- Include proper visual, collision, and inertial properties
-- Add appropriate materials and colors
-- Use Xacro for parameterized model creation
+### Phase 2: Core Node Development (Week 3-4) {#phase-2-core-node-development-week-3-4}
+- Implement foundational nodes (sensors, actuators, basic processing)
+- Establish communication patterns between nodes
+- Implement basic parameter handling
+- Create initial launch files
 
-## Implementation Guidelines
+### Phase 3: Advanced Features (Week 5-6) {#phase-3-advanced-features-week-5-6}
+- Implement complex processing nodes
+- Add action servers for long-running tasks
+- Integrate advanced ROS2 features (timers, callbacks, etc.)
+- Implement error handling and recovery
 
-### Project Structure
-```
-ros2_project/
-├── src/
-│   ├── robot_bringup/
-│   │   ├── launch/
-│   │   └── config/
-│   ├── robot_description/
-│   │   └── urdf/
-│   ├── sensor_nodes/
-│   ├── controller_nodes/
-│   └── service_nodes/
-├── CMakeLists.txt
-├── package.xml
-└── README.md
-```
+### Phase 4: Integration and Testing (Week 7-8) {#phase-4-integration-and-testing-week-7-8}
+- Integrate all components into cohesive system
+- Implement comprehensive testing framework
+- Optimize performance and resource usage
+- Document system behavior and interfaces
 
-### Node Implementation Examples
+### Phase 5: Evaluation and Documentation (Week 9-10) {#phase-5-evaluation-and-documentation-week-9-10}
+- Conduct thorough system testing
+- Perform performance analysis
+- Create comprehensive documentation
+- Prepare final presentation
 
-#### Sensor Node Example
-```python
-import rclpy
-from rclpy.node import Node
-from std_msgs.msg import Float64
-from sensor_msgs.msg import LaserScan
-import random
+## Technical Requirements {#technical-requirements}
 
-class RobotSensorNode(Node):
-    def __init__(self):
-        super().__init__('robot_sensor_node')
+### Node Architecture {#node-architecture}
+- **Single Responsibility**: Each node has a clear, specific purpose
+- **Proper Interfaces**: Well-defined inputs, outputs, and parameters
+- **Error Handling**: Robust error detection and recovery mechanisms
+- **Resource Management**: Proper cleanup and resource handling
 
-        # Create publishers for different sensor types
-        self.distance_publisher = self.create_publisher(Float64, 'distance_sensor', 10)
-        self.scan_publisher = self.create_publisher(LaserScan, 'laser_scan', 10)
+### Communication Patterns {#communication-patterns}
+- **Topic Usage**: Appropriate message types and QoS settings
+- **Service Implementation**: Synchronous operations with proper error handling
+- **Action Integration**: Asynchronous operations with feedback and goals
+- **Message Design**: Custom messages when appropriate
 
-        # Timer for sensor data publication
-        self.timer = self.create_timer(0.1, self.publish_sensor_data)
+### Parameter System {#parameter-system}
+- **Dynamic Parameters**: Runtime configuration with callbacks
+- **Validation**: Proper parameter validation and bounds checking
+- **Configuration Files**: YAML files for different deployment scenarios
+- **Documentation**: Clear parameter descriptions and usage
 
-        # Robot state
-        self.distance_reading = 0.0
+### Development Practices {#development-practices}
+- **Code Quality**: Proper documentation, error handling, and style
+- **Testing**: Unit tests for individual components and integration tests
+- **Build System**: Proper package.xml and CMakeLists.txt configuration
+- **Version Control**: Proper Git usage and commit messages
 
-    def publish_sensor_data(self):
-        # Simulate distance sensor
-        distance_msg = Float64()
-        distance_msg.data = self.distance_reading + random.uniform(-0.01, 0.01)
-        self.distance_publisher.publish(distance_msg)
+## Evaluation Criteria {#evaluation-criteria}
 
-        # Simulate laser scan
-        scan_msg = LaserScan()
-        scan_msg.header.stamp = self.get_clock().now().to_msg()
-        scan_msg.header.frame_id = 'laser_frame'
-        scan_msg.angle_min = -1.57
-        scan_msg.angle_max = 1.57
-        scan_msg.angle_increment = 0.01
-        scan_msg.ranges = [2.0 + random.uniform(-0.1, 0.1) for _ in range(315)]
-        self.scan_publisher.publish(scan_msg)
+### Technical Implementation (50%) {#technical-implementation-50}
+- **Node Design**: Proper architecture and clear responsibilities
+- **Communication**: Appropriate use of ROS2 communication patterns
+- **Parameter System**: Effective configuration management
+- **Code Quality**: Clean, well-documented, maintainable code
 
-def main(args=None):
-    rclpy.init(args=args)
-    node = RobotSensorNode()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+### System Integration (25%) {#system-integration-25}
+- **Component Coordination**: Effective interaction between nodes
+- **Data Flow**: Proper handling and processing of information
+- **Performance**: Efficient resource usage and response times
+- **Reliability**: Robust operation under various conditions
 
-if __name__ == '__main__':
-    main()
-```
+### Problem-Solving (15%) {#problem-solving-15}
+- **Complexity Management**: Handling complex system interactions
+- **Debugging**: Effective use of ROS2 debugging tools
+- **Optimization**: Performance improvements and efficiency gains
+- **Innovation**: Creative solutions or enhancements
 
-#### Controller Node Example
-```python
-import rclpy
-from rclpy.node import Node
-from geometry_msgs.msg import Twist
-from sensor_msgs.msg import LaserScan
-import math
+### Documentation and Testing (10%) {#documentation-and-testing-10}
+- **Technical Documentation**: Clear system and API documentation
+- **Testing Coverage**: Comprehensive test suite with good coverage
+- **Launch Files**: Complete and well-structured launch configurations
+- **User Guide**: Clear instructions for system operation
 
-class RobotControllerNode(Node):
-    def __init__(self):
-        super().__init__('robot_controller_node')
+## Project Options {#project-options}
 
-        # Subscriptions
-        self.scan_subscription = self.create_subscription(
-            LaserScan, 'laser_scan', self.scan_callback, 10)
+### Option 1: Autonomous Mobile Robot {#option-1-autonomous-mobile-robot}
+- Implement navigation stack with perception and planning
+- Integrate multiple sensors (LiDAR, cameras, IMU)
+- Implement SLAM capabilities
+- Demonstrate autonomous navigation in unknown environments
 
-        # Publisher for robot commands
-        self.cmd_publisher = self.create_publisher(Twist, 'cmd_vel', 10)
+### Option 2: Robotic Manipulator Control {#option-2-robotic-manipulator-control}
+- Implement manipulator control with perception
+- Integrate visual servoing and path planning
+- Implement grasp planning and execution
+- Demonstrate object manipulation tasks
 
-        # Robot state
-        self.safe_distance = 0.5
-        self.linear_vel = 0.0
-        self.angular_vel = 0.0
+### Option 3: Multi-Robot System {#option-3-multi-robot-system}
+- Coordinate multiple robots with communication
+- Implement distributed decision making
+- Handle inter-robot communication and coordination
+- Demonstrate collaborative behaviors
 
-    def scan_callback(self, msg):
-        # Simple obstacle avoidance algorithm
-        min_distance = min(msg.ranges)
+### Option 4: Perception and Recognition System {#option-4-perception-and-recognition-system}
+- Implement complex perception pipeline
+- Integrate multiple sensor modalities
+- Implement object recognition and tracking
+- Demonstrate real-time processing capabilities
 
-        cmd_msg = Twist()
-        if min_distance < self.safe_distance:
-            # Turn away from obstacle
-            cmd_msg.linear.x = 0.0
-            cmd_msg.angular.z = 0.5
-        else:
-            # Move forward
-            cmd_msg.linear.x = 0.3
-            cmd_msg.angular.z = 0.0
+### Custom Option {#custom-option}
+- Propose alternative project with instructor approval
+- Must utilize advanced ROS2 concepts and architecture
+- Should address significant robotics challenge
 
-        self.cmd_publisher.publish(cmd_msg)
+## Advanced ROS2 Features to Implement {#advanced-ros2-features-to-implement}
 
-def main(args=None):
-    rclpy.init(args=args)
-    node = RobotControllerNode()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+### Lifecycle Nodes {#lifecycle-nodes}
+- Implement proper node lifecycle management
+- Handle configure, activate, deactivate, cleanup transitions
+- Implement state monitoring and management
 
-if __name__ == '__main__':
-    main()
-```
+### Composition {#composition}
+- Create composable nodes for performance
+- Implement node composition for reduced overhead
+- Compare performance with separate nodes
 
-## Assessment Criteria
+### Quality of Service (QoS) {#quality-of-service-qos}
+- Proper QoS configuration for different message types
+- Handle reliability and durability requirements
+- Implement deadline and lifespan policies
 
-### Technical Implementation (60%)
-- **Correct ROS 2 patterns**: Proper implementation of communication patterns (20%)
-- **URDF quality**: Well-structured robot model with proper properties (15%)
-- **Code quality**: Clean, well-documented, and maintainable code (15%)
-- **Parameter usage**: Effective use of ROS 2 parameters (10%)
+### Security {#security}
+- Implement ROS2 security features
+- Configure authentication and encryption
+- Handle secure communication patterns
 
-### Functionality (25%)
-- **System integration**: All components work together seamlessly (15%)
-- **Performance**: Efficient execution and resource usage (10%)
+## Resources and Support {#resources-and-support}
 
-### Documentation (15%)
-- **Code documentation**: Proper comments and docstrings (5%)
-- **Package documentation**: README with setup and usage instructions (5%)
-- **Design rationale**: Explanation of architectural decisions (5%)
+### Development Tools {#development-tools}
+- ROS2 development environment setup
+- Debugging and profiling tools
+- Testing frameworks and methodologies
+- Documentation and API references
 
-## Submission Requirements
+### Sample Code and Examples {#sample-code-and-examples}
+- ROS2 tutorials and example packages
+- Best practices and design patterns
+- Performance optimization techniques
+- Security implementation examples
 
-1. **Source Code**: Complete, well-organized source code
-2. **Launch Files**: Proper launch files to start the complete system
-3. **URDF Files**: Complete robot description in URDF/Xacro
-4. **Documentation**: README with setup instructions and design explanation
-5. **Demonstration**: Video or detailed description of system operation
-6. **Testing**: Evidence of testing and validation
+### Technical Support {#technical-support}
+- ROS2 community resources
+- Troubleshooting guides
+- Performance analysis tools
+- Code review and feedback
 
-## Evaluation Rubric
+## Submission Requirements {#submission-requirements}
 
-<table>
-  <thead>
-    <tr>
-      <th>Aspect</th>
-      <th>Excellent (90-100%)</th>
-      <th>Good (80-89%)</th>
-      <th>Adequate (70-79%)</th>
-      <th>Needs Improvement (&lt;70%)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>ROS 2 Implementation</td>
-      <td>All patterns implemented perfectly with advanced features</td>
-      <td>All required patterns implemented correctly</td>
-      <td>Most patterns implemented with minor issues</td>
-      <td>Missing or incorrectly implemented patterns</td>
-    </tr>
-    <tr>
-      <td>URDF Quality</td>
-      <td>Excellent model with advanced features and optimization</td>
-      <td>Good model with proper properties</td>
-      <td>Basic model with some issues</td>
-      <td>Poor or incomplete model</td>
-    </tr>
-    <tr>
-      <td>System Integration</td>
-      <td>Flawless integration with advanced features</td>
-      <td>Good integration with minor issues</td>
-      <td>Basic integration working</td>
-      <td>Poor integration</td>
-    </tr>
-    <tr>
-      <td>Code Quality</td>
-      <td>Excellent documentation, structure, and practices</td>
-      <td>Good quality with minor issues</td>
-      <td>Adequate quality</td>
-      <td>Poor quality</td>
-    </tr>
-    <tr>
-      <td>Documentation</td>
-      <td>Comprehensive and clear</td>
-      <td>Good documentation</td>
-      <td>Basic documentation</td>
-      <td>Inadequate documentation</td>
-    </tr>
-  </tbody>
-</table>
+### Deliverables {#deliverables}
+1. **Source Code**: Complete, well-structured ROS2 packages
+2. **Launch Files**: Comprehensive system launch configurations
+3. **Configuration Files**: Parameter and setup files
+4. **Test Suite**: Unit and integration tests
+5. **Technical Documentation**: System architecture and API docs
+6. **Demonstration Video**: Showcasing system capabilities
+7. **Performance Analysis**: Benchmarking results and optimization
 
-## Submission Guidelines
+### Code Requirements {#code-requirements}
+- **Package Structure**: Proper ROS2 package organization
+- **Dependencies**: Clear package.xml with all dependencies
+- **Build System**: Working CMakeLists.txt for C++ or setup.py for Python
+- **Documentation**: Inline documentation and README files
 
-- Submit as a Git repository with clear commit history
-- Include all necessary files for system operation
-- Provide detailed README with setup and usage instructions
-- Include a brief video demonstration (or detailed written description)
-- Submit through the course management system by the deadline
+### Testing Requirements {#testing-requirements}
+- **Unit Tests**: Individual component testing
+- **Integration Tests**: System-level testing
+- **Performance Tests**: Benchmarking and stress testing
+- **Continuous Integration**: Automated testing setup
 
-## Resources and References
+## Evaluation Metrics {#evaluation-metrics}
 
-- [ROS 2 Tutorials](https://docs.ros.org/en/humble/Tutorials.html)
-- [rclpy Documentation](https://docs.ros2.org/latest/api/rclpy/)
-- [URDF Tutorials](http://wiki.ros.org/urdf/Tutorials)
-- [ROS 2 Launch Files](https://docs.ros.org/en/humble/Tutorials/Intermediate/Launch/Creating-Launch-Files.html)
+### Functional Metrics {#functional-metrics}
+- **System Completeness**: All planned features implemented and working
+- **Communication Efficiency**: Proper message handling and timing
+- **Parameter Handling**: Runtime configuration and validation
+- **Error Recovery**: Robust failure detection and handling
 
-## Support and Questions
+### Performance Metrics {#performance-metrics}
+- **Node Responsiveness**: Message processing and callback timing
+- **Resource Usage**: CPU, memory, and network utilization
+- **Communication Latency**: Message delivery and processing times
+- **System Scalability**: Performance under increased load
 
-For questions about this project, please:
-- Review the course materials and documentation
-- Attend office hours or discussion sessions
-- Post questions in the course forum
-- Contact the instructor directly for clarification
+### Quality Metrics {#quality-metrics}
+- **Code Coverage**: Test coverage of implemented functionality
+- **Code Quality**: Static analysis results and style compliance
+- **Documentation Quality**: Completeness and clarity of documentation
+- **Maintainability**: Code organization and ease of modification
 
-Remember to start early and iterate on your implementation based on testing and feedback.
+## Assessment Timeline {#assessment-timeline}
+
+### Week 2: Architecture Review {#week-2-architecture-review}
+- Present system design and architecture
+- Review node responsibilities and interfaces
+- Confirm project scope and timeline
+
+### Week 4: Core Implementation Review {#week-4-core-implementation-review}
+- Evaluate basic node functionality
+- Review communication patterns
+- Address architectural issues
+
+### Week 6: Advanced Features Review {#week-6-advanced-features-review}
+- Evaluate complex functionality implementation
+- Review advanced ROS2 feature usage
+- Test component integration
+
+### Week 8: Integration Review {#week-8-integration-review}
+- Evaluate complete system integration
+- Review testing framework
+- Address performance issues
+
+### Week 10: Final Presentation {#week-10-final-presentation}
+- Demonstrate complete system
+- Present performance analysis
+- Submit all deliverables
+
+This project provides comprehensive experience with advanced ROS2 development and demonstrates practical skills in robotic system architecture and integration.

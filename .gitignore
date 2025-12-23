@@ -49,3 +49,5 @@ coverage/
 
 # CI
 .semaphore
+.vercel
+.env*.local
