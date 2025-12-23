@@ -6,7 +6,7 @@ sidebar_position: 1
 
 This section outlines the various hardware configurations available for the Physical AI Humanoid Robotics program. We offer multiple options to accommodate different budgets, space constraints, and learning objectives.
 
-## Available Kits
+## Available Kits {#available-kits}
 
 We provide three primary hardware configurations:
 
@@ -14,7 +14,7 @@ We provide three primary hardware configurations:
 - **Edge Kit**: Mid-tier solution with enhanced capabilities for more advanced projects
 - **Robot Lab Options**: Comprehensive setup for institutional use with multiple stations
 
-## Selection Guide
+## Selection Guide {#selection-guide}
 
 Choosing the right hardware configuration depends on several factors:
 
@@ -24,7 +24,7 @@ Choosing the right hardware configuration depends on several factors:
 - **Objectives**: Specific learning goals and project complexity
 - **Maintenance**: Resources available for ongoing hardware maintenance
 
-## Common Components
+## Common Components {#common-components}
 
 All configurations include:
 
@@ -34,7 +34,7 @@ All configurations include:
 - Power systems
 - Basic structural components
 
-## Additional Considerations
+## Additional Considerations {#additional-considerations}
 
 - Shipping and import duties (for international orders)
 - Local safety regulations and compliance

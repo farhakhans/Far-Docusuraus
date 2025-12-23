@@ -106,6 +106,13 @@ const sidebars = {
         'models/humanoid-robotics',
       ],
     },
+    {
+      type: 'category',
+      label: 'Server-Side Computation',
+      items: [
+        'server-side-computation',
+      ],
+    },
   ],
 };
 

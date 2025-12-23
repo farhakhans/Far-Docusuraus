@@ -271,7 +271,26 @@
       "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Enhance RAG chatbot with improved responses and better connectivity\n\n- Fix chatbot connection by updating endpoint from localhost:5010 to localhost:5002\n- Update MCP adapter to use correct ports \\(5002\\) and connect to RAG server at localhost:5007\n- Improve response generation to provide direct answers instead of just references\n- Fix content extraction to use full document content instead of truncated previews\n- Add run scripts for easier service startup \\(run-chatbot.bat, start-all.bat, etc.\\)\n- Update response formatting to focus on answers rather than \"based on documentation\" language\n- Ensure proper document indexing and search functionality\n\nThese changes resolve issues with the chatbot not responding, providing truncated answers,\nand displaying references instead of direct answers.\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Haiku 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(git push:*)",
       "Bash(rm -f nul)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"Clean up unnecessary files and directories from Docusaurus project\n\n- Removed system configuration files \\(.bashrc, .git-completion.bash, etc.\\)\n- Removed empty/unused backend, mcp-server, and rag-chatbot directories\n- Removed legacy static chatbot files from static/rag-chatbot/\n- Removed build directory and other temporary files\n- Project now contains only essential files for Docusaurus functionality\")",
+      "Bash(git push origin gh-pages)",
+      "Bash(git commit -m \"Add vercel.json for Vercel deployment configuration\n\n- Configures static build with npm run build command\n- Sets build output directory to ''build''\n- Adds catch-all route for SPA functionality\")",
+      "Bash(git commit -m \"Update Docusaurus config for Vercel deployment\n\n- Update URL to Vercel deployment URL\n- Update organizationName and projectName to actual values\")",
+      "Skill(sp.specify)",
+      "Bash(git fetch --all --prune)",
+      "Bash(.specify/scripts/bash/create-new-feature.sh --json --number 1 --short-name \"documentation-spec\" \"Test feature specification for documentation\")",
+      "Bash(.specify/scripts/powershell/create-new-feature.ps1 -Json \"Test feature specification for documentation\" -Json -Number 1 -ShortName \"documentation-spec\" \"Test feature specification for documentation\")",
+      "Bash(npm run serve)",
+      "Bash(npx serve build)",
+      "Bash(npm install --save-dev concurrently)",
+      "Bash(npm run server)",
+      "Bash(curl -X GET http://localhost:3001/api/health)",
+      "Bash(curl -X GET \"http://localhost:3001/api/robotics/calculate?jointAngles=[1.57,0.785]&robotType=arm\")",
+      "Bash(curl -X GET \"http://localhost:3001/api/robotics/calculate?jointAngles=%5B1.57,0.785%5D&robotType=arm\")",
+      "Bash(curl -X POST http://localhost:3001/api/robotics/simulate -H \"Content-Type: application/json\" -d '{\"\"parameters\"\": {\"\"mass\"\": 2, \"\"acceleration\"\": 9.8}, \"\"simulationType\"\": \"\"physics\"\"}')",
+      "Bash(curl -X GET http://localhost:3001/api/robotics/simulations)",
+      "Bash(rd /s /q build)",
+      "Bash(powershell Remove-Item -Recurse -Force build)"
     ]
   }
 }
