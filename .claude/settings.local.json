@@ -155,7 +155,12 @@
       "Bash(git push origin master)",
       "Bash(git commit -m \"Update settings and resolve merge conflicts\")",
       "Bash(git commit -m \"Update Claude settings permissions\")",
-      "Bash(git commit -m \"Update Claude settings\")"
+      "Bash(git commit -m \"Update Claude settings\")",
+      "Bash(npx docusaurus clear)",
+      "Bash(cat sidebars.js)",
+      "Bash(git commit -m \"Restore Docusaurus documentation site with complete curriculum\n\n- Revert to original Docusaurus site structure\n- Restore all documentation modules and content\n- Maintain proper navigation and working links\n- Include all course materials and assessments\")",
+      "Bash(git push --force-with-lease origin master)",
+      "Bash(cat vercel.json)"
     ]
   }
 }
